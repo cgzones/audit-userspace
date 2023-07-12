@@ -283,7 +283,7 @@ no_print:
 			// Known: LABEL_LEVEL_CHANGE banners=none,none
 			// Known: ROLL_ASSIGN new-role=r,r
 			// Known: any MAC LABEL can potentially have commas
-				int ftype = auparse_interp_adjust_type(n->type,
+				long long int ftype = auparse_interp_adjust_type(n->type,
 								name, val);
 				if (ftype == AUPARSE_TYPE_MAC_LABEL) {
 					str = val;
@@ -295,7 +295,7 @@ no_print:
 			} else if (str && (val == NULL)) {
 			// Goes all the way to the end. Done parsing
 			// Known: MCS context in PATH rec obj=u:r:t:s0:c2,c7
-				int ftype = auparse_interp_adjust_type(n->type,
+				long long int ftype = auparse_interp_adjust_type(n->type,
 								name, ptr);
 				if (ftype == AUPARSE_TYPE_MAC_LABEL)
 					str = NULL;
@@ -329,7 +329,7 @@ no_print:
 
 static void report_interpret(char *name, char *val, int comma, int rtype)
 {
-	int type;
+	long long int type;
 	idata id;
 
 	while (*name == ' '||*name == '(')
@@ -749,7 +749,7 @@ static void text_event(auparse_state_t *au,
 	rc = auparse_normalize_object_primary(au);
 	if (rc == 1) {
 		const char *val = NULL;
-		int ftype;
+		long long int ftype;
 
 		// If we have an object and this is an AVC, add some words
 		if (action && strstr(action, "violated"))

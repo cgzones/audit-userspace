@@ -113,7 +113,7 @@ static void set_unknown_subject_what(auparse_state_t *au)
 static unsigned int set_subject_what(auparse_state_t *au)
 {
 	int uid = NORM_ACCT_UNSET - 1;
-	int ftype = auparse_get_field_type(au);
+	long long int ftype = auparse_get_field_type(au);
 	if (ftype == AUPARSE_TYPE_UID)
 		uid = auparse_get_field_int(au);
 	else {
@@ -566,7 +566,8 @@ static int set_program_obj(auparse_state_t *au)
  */
 static int normalize_syscall(auparse_state_t *au, const char *syscall)
 {
-	int rc, tmp_objkind, objtype = NORM_UNKNOWN, ttype = 0, offset = 0;
+	long long int objtype = NORM_UNKNOWN;
+	int rc, tmp_objkind, ttype = 0, offset = 0;
 	const char *act = NULL, *f;
 
 	// cycle through all records and see what we have

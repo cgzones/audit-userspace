@@ -573,7 +573,7 @@ parse_comparison(struct parsing *p)
 		assert(p->token == T_STRING);
 		res->virtual_field = 0;
 		res->v.p.field.name = p->token_value;
-		int type = lookup_type(p->token_value);
+		long long int type = lookup_type(p->token_value);
 		if (type == AUPARSE_TYPE_UID || type == AUPARSE_TYPE_GID)
 			res->numeric_field = 1;
 		p->token_value = NULL;

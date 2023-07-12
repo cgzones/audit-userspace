@@ -130,7 +130,7 @@ int nvlist_find_name(nvlist *l, const char *name)
 }
 
 extern int interp_adjust_type(int rtype, const char *name, const char *val);
-int nvlist_get_cur_type(rnode *r)
+long long int nvlist_get_cur_type(rnode *r)
 {
 	nvlist *l = &r->nv;
 	nvnode *node = &l->array[l->cur];

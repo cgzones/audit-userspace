@@ -158,7 +158,7 @@ static inline void write_syslog(char *s)
 		mptr = record;
 		while (rc > 0 &&
 		       ((mptr-record) < (MAX_AUDIT_MESSAGE_LENGTH-128))) {
-			int ftype = auparse_get_field_type(au);
+			long long int ftype = auparse_get_field_type(au);
 			const char *fname = auparse_get_field_name(au);
 			const char *fval;
 			switch (ftype) {
