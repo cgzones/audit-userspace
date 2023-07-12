@@ -466,7 +466,7 @@ static const char *format_enrich(const struct audit_reply *rep)
 		while (rc > 0 && len > MIN_SPACE_LEFT) {
 			// See what kind of field we have
 			size_t vlen;
-			int type = auparse_get_field_type(au);
+			long long int type = auparse_get_field_type(au);
 			switch (type)
 			{
 				case AUPARSE_TYPE_UID:

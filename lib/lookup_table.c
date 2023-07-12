@@ -100,7 +100,7 @@ static const struct int_transtab elftab[] = {
 int audit_name_to_field(const char *field)
 {
 #ifndef NO_TABLES
-	int res;
+	long long int res;
 
 	if (field_s2i(field, &res) != 0)
 		return res;
@@ -120,7 +120,8 @@ const char *audit_field_to_name(int field)
 int audit_name_to_uringop(const char *uringop)
 {
 #ifdef WITH_IO_URING
-	int res = -1, found = 0;
+	long long int res = -1;
+	int found = 0;
 
 #ifndef NO_TABLES
 	found = uringop_s2i(uringop, &res);
@@ -133,7 +134,8 @@ int audit_name_to_uringop(const char *uringop)
 
 int audit_name_to_syscall(const char *sc, int machine)
 {
-	int res = -1, found = 0;
+	long long int res = -1;
+	int found = 0;
 
 	switch (machine)
 	{
@@ -235,7 +237,7 @@ const char *audit_syscall_to_name(int sc, int machine)
 
 int audit_name_to_flag(const char *flag)
 {
-	int res;
+	long long int res;
 
 	if (flag_s2i(flag, &res) != 0)
 		return res;
@@ -249,7 +251,7 @@ const char *audit_flag_to_name(int flag)
 
 int audit_name_to_action(const char *action)
 {
-	int res;
+	long long int res;
 
 	if (action_s2i(action, &res) != 0)
 		return res;
@@ -264,7 +266,7 @@ const char *audit_action_to_name(int action)
 // On the critical path for ausearch parser
 int audit_name_to_msg_type(const char *msg_type)
 {
-	int rc;
+	long long int rc;
 
 	if (msg_type_s2i(msg_type, &rc) != 0)
 		return rc;
@@ -299,7 +301,7 @@ const char *audit_msg_type_to_name(int msg_type)
 
 int audit_name_to_machine(const char *machine)
 {
-	int res;
+	long long int res;
 
 	if (machine_s2i(machine, &res) != 0)
 		return res;
@@ -339,7 +341,8 @@ const char *audit_operator_to_symbol(int op)
 int audit_name_to_errno(const char *error)
 {
 #ifndef NO_TABLES
-	int rc, minus = 1;
+	long long int rc;
+	int minus = 1;
 
 	if (*error == '-') {
 		minus = -1;
@@ -375,7 +378,7 @@ const char *audit_errno_to_name(int error)
 int audit_name_to_ftype(const char *name)
 {
 #ifndef NO_TABLES
-	int res;
+	long long int res;
 	if (ftype_s2i(name, &res) != 0)
 		return res;
 #endif
@@ -394,7 +397,7 @@ const char *audit_ftype_to_name(int ftype)
 int audit_name_to_fstype(const char *name)
 {
 #ifndef NO_TABLES
-	int res;
+	long long int res;
 	if (fstype_s2i(name, &res) != 0)
 		return res;
 #endif
@@ -413,7 +416,7 @@ const char *audit_fstype_to_name(int fstype)
 int audit_name_to_perm(const char *name)
 {
 #ifndef NO_TABLES
-	int res;
+	long long int res;
 	if (perm_s2i(name, &res) != 0)
 		return res;
 #endif

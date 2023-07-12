@@ -454,7 +454,7 @@ static void print_rule(const struct audit_rule_data *r)
 					const char *out;
 					idata id;
 					char val[32];
-					int type;
+					long long int type;
 
 					id.syscall = sc;
 					id.machine = mach;

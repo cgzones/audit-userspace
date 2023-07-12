@@ -78,7 +78,7 @@
 static bool allow_duplicate_ints; /* = false; */
 
 struct value {
-	int val;
+	long long int val;
 	const char *s;
 	size_t s_offset;
 	size_t orig_index;
@@ -182,7 +182,7 @@ output_s2i(const char *prefix, bool uppercase, bool lowercase)
 	for (i = 0; i < NUM_VALUES - 1; i++) {
 		assert(strcmp(values[i].s, values[i + 1].s) <= 0);
 		if (strcmp(values[i].s, values[i + 1].s) == 0) {
-			fprintf(stderr, "Duplicate value `%s': %d, %d\n",
+			fprintf(stderr, "Duplicate value `%s': %lld, %lld\n",
 				values[i].s, values[i].val, values[i + 1].val);
 			abort();
 		}
@@ -196,11 +196,11 @@ output_s2i(const char *prefix, bool uppercase, bool lowercase)
 	}
 	printf("\n"
 	       "};\n"
-	       "static const int %s_s2i_i[] = {", prefix);
+	       "static const long long int %s_s2i_i[] = {", prefix);
 	for (i = 0; i < NUM_VALUES; i++) {
 		if (i % 10 == 0)
 			fputs("\n\t", stdout);
-		printf("%d,", values[i].val);
+		printf("%lld,", values[i].val);
 	}
 	fputs("\n"
 	      "};\n", stdout);
@@ -223,7 +223,7 @@ output_s2i(const char *prefix, bool uppercase, bool lowercase)
 		}
 	}
 	if (uppercase || lowercase) {
-		printf("static int %s_s2i(const char *s, int *value) {\n"
+		printf("static int %s_s2i(const char *s, long long int *value) {\n"
 		       "\tsize_t len, i;\n"
 		       "\t if (s == NULL || value == NULL)\n"
 		       "\t\treturn 0;\n"
@@ -244,7 +244,7 @@ output_s2i(const char *prefix, bool uppercase, bool lowercase)
 		       "\t}\n"
 		       "}\n", prefix, prefix, prefix, NUM_VALUES);
 	} else
-		printf("static int %s_s2i(const char *s, int *value) {\n"
+		printf("static int %s_s2i(const char *s, long long int *value) {\n"
 		       "\treturn s2i__(%s_strings, %s_s2i_s, %s_s2i_i, %zu, s, "
 				      "value);\n"
 		       "}\n", prefix, prefix, prefix, prefix, NUM_VALUES);
@@ -256,7 +256,7 @@ static void
 output_i2s(const char *prefix)
 {
 	struct value *unique_values;
-	int min_val, max_val;
+	long long int min_val, max_val;
 	size_t i, n;
 
 	assert(NUM_VALUES > 0);
@@ -264,7 +264,7 @@ output_i2s(const char *prefix)
 		assert(values[i].val <= values[i + 1].val);
 		if (!allow_duplicate_ints
 		    && values[i].val == values[i + 1].val) {
-			fprintf(stderr, "Duplicate value %d: `%s', `%s'\n",
+			fprintf(stderr, "Duplicate value %lld: `%s', `%s'\n",
 				values[i].val, values[i].s, values[i + 1].s);
 			abort();
 		}
@@ -286,7 +286,7 @@ output_i2s(const char *prefix)
 	min_val = unique_values[0].val;
 	max_val = unique_values[n - 1].val;
 	if (((double)max_val - (double)min_val) / n <= DIRECT_THRESHOLD) {
-		int next_index;
+		long long int next_index;
 
 		printf("static const unsigned %s_i2s_direct[] = {", prefix);
 		next_index = min_val;
@@ -310,15 +310,15 @@ output_i2s(const char *prefix)
 		printf("\n"
 		       "};\n"
 		       "static const char *%s_i2s(int v) {\n"
-		       "\treturn i2s_direct__(%s_strings, %s_i2s_direct, %d, "
-					     "%d, v);\n"
+		       "\treturn i2s_direct__(%s_strings, %s_i2s_direct, %lld, "
+					     "%lld, v);\n"
 		       "}\n", prefix, prefix, prefix, min_val, max_val);
 	} else {
-		printf("static const int %s_i2s_i[] = {", prefix);
+		printf("static const long long int %s_i2s_i[] = {", prefix);
 		for (i = 0; i < n; i++) {
 			if (i % 10 == 0)
 				fputs("\n\t", stdout);
-			printf("%d,", unique_values[i].val);
+			printf("%lld,", unique_values[i].val);
 		}
 		printf("\n"
 		       "};\n"
@@ -351,7 +351,7 @@ output_i2s_transtab(const char *prefix)
 	for (i = 0; i < NUM_VALUES; i++) {
 		if (i % 10 == 0)
 			fputs("\n\t", stdout);
-		printf("{%d,%zu},", values[i].val, values[i].s_offset);
+		printf("{%lld,%zu},", values[i].val, values[i].s_offset);
 	}
 	uc_prefix = strdup(prefix);
 	if (uc_prefix == NULL) {

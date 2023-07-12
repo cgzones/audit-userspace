@@ -2156,7 +2156,7 @@ const char *auparse_get_field_str(const auparse_state_t *au)
 	return NULL;
 }
 
-int auparse_get_field_type(const auparse_state_t *au)
+long long int auparse_get_field_type(const auparse_state_t *au)
 {
 	if (au->le == NULL)
 		return AUPARSE_TYPE_UNCLASSIFIED;

@@ -30,7 +30,7 @@
 #define GT_ISLOWER(X) ((X) >= 'a' && (X) <= 'z')
 
 inline static int s2i__(const char *strings, const unsigned *s_table,
-			const int *i_table, size_t n, const char *s, int *value)
+			const long long int *i_table, size_t n, const char *s, long long int *value)
 {
 	ssize_t left, right;
 
@@ -56,8 +56,8 @@ inline static int s2i__(const char *strings, const unsigned *s_table,
 }
 
 inline static const char *i2s_direct__(const char *strings,
-				       const unsigned *table, int min, int max,
-				       int v)
+				       const unsigned *table, long long int min, long long int max,
+				       long long int v)
 {
 	unsigned off;
 
@@ -70,9 +70,9 @@ inline static const char *i2s_direct__(const char *strings,
 }
 
 inline static const char *i2s_bsearch__(const char *strings,
-					const int *i_table,
+					const long long int *i_table,
 					const unsigned *s_table, size_t n,
-					int v)
+					long long int v)
 {
 	ssize_t left, right;
 
@@ -80,7 +80,7 @@ inline static const char *i2s_bsearch__(const char *strings,
 	right = n - 1;
 	while (left <= right) {	/* invariant: left <= x <= right */
 		size_t mid;
-		int mid_val;
+		long long int mid_val;
 
 		mid = (left + right) / 2;
 		mid_val = i_table[mid];
@@ -95,7 +95,7 @@ inline static const char *i2s_bsearch__(const char *strings,
 }
 
 struct transtab {
-	int value;
+	long long int value;
 	unsigned offset;
 };
 

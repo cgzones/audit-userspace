@@ -165,7 +165,7 @@ int auparse_goto_field_num(const auparse_state_t *au, unsigned int num);
 /* Accessors to field data */
 const char *auparse_get_field_name(const auparse_state_t *au);
 const char *auparse_get_field_str(const auparse_state_t *au);
-int auparse_get_field_type(const auparse_state_t *au);
+long long int auparse_get_field_type(const auparse_state_t *au);
 int auparse_get_field_int(const auparse_state_t *au);
 const char *auparse_interpret_field(auparse_state_t *au);
 const char *auparse_interpret_realpath(const auparse_state_t *au);

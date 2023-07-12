@@ -3126,9 +3126,9 @@ static const char *print_nlmcgrp(const char *val)
 	}
 }
 
-int lookup_type(const char *name)
+long long int lookup_type(const char *name)
 {
-	int i;
+	long long int i;
 
 	if (type_s2i(name, &i) != 0)
 		return i;
@@ -3142,7 +3142,7 @@ int lookup_type(const char *name)
 const char *do_interpret(rnode *r, auparse_esc_t escape_mode)
 {
 	nvlist *nv = &r->nv;
-	int type;
+	long long int type;
 	idata id;
 	nvnode *n;
 	const char *out;
@@ -3169,9 +3169,9 @@ const char *do_interpret(rnode *r, auparse_esc_t escape_mode)
  * value:   the current field value
  * Returns: field's internal type is returned
  */
-int auparse_interp_adjust_type(int rtype, const char *name, const char *val)
+long long int auparse_interp_adjust_type(int rtype, const char *name, const char *val)
 {
-	int type;
+	long long int type;
 
 	/* This set of statements overrides or corrects the detection.
 	 * In almost all cases its a double use of a field. */
@@ -3227,7 +3227,7 @@ int auparse_interp_adjust_type(int rtype, const char *name, const char *val)
  * This can be called by either interpret() or from ausearch-report or
  * auditctl-listing.c. Returns a malloc'ed buffer that the caller must free.
  */
-char *auparse_do_interpretation(int type, const idata *id,
+char *auparse_do_interpretation(long long int type, const idata *id,
 	auparse_esc_t escape_mode)
 {
 	const char *out;
