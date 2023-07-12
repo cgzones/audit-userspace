@@ -22,7 +22,7 @@
 #
 
 CONFIG_CLEAN_FILES = *.rej *.orig
-AM_CFLAGS = -fPIC -DPIC -D_GNU_SOURCE -g
+AM_CFLAGS = -fPIC -DPIC -D_GNU_SOURCE
 AM_CPPFLAGS = -I${top_srcdir} -I${top_srcdir}/lib
 
 noinst_HEADERS = common.h
