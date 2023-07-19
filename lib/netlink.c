@@ -186,7 +186,7 @@ static int adjust_reply(struct audit_reply *rep, int len)
  */
 int __audit_send(int fd, int type, const void *data, unsigned int size, int *seq)
 {
-	static int sequence = 0;
+	static _Atomic int sequence = 0;
 	struct audit_message req;
 	int retval;
 	struct sockaddr_nl addr;
