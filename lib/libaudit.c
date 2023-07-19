@@ -376,7 +376,7 @@ int audit_is_enabled(int fd)
 	int rc;
 
 	if (fd < 0)
-		return 0;
+		return -1;
 
 	if ((rc = audit_request_status(fd)) > 0) {
 		struct audit_reply rep;
