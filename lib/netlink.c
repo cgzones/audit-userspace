@@ -56,8 +56,7 @@ int audit_open(void)
 				"Error - audit support not in kernel"); 
 		else
 			audit_msg(LOG_ERR,
-				"Error opening audit netlink socket (%s)", 
-				strerror(errno));
+				"Error opening audit netlink socket (%m)");
 	}
 	return fd;
 }
@@ -95,8 +94,7 @@ retry:
 			goto retry;
 		if (errno != EAGAIN)
 			audit_msg(LOG_ERR, 
-				"Error receiving audit netlink packet (%s)", 
-				strerror(errno));
+				"Error receiving audit netlink packet (%m)");
 		return -errno;
 	}
 	if (nladdrlen != sizeof(nladdr)) {
