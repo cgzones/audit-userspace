@@ -195,8 +195,13 @@ static char *_get_commname(const char *comm, char *commname, unsigned int size)
 	}
 
 	len = strlen(comm);
-	if (audit_value_needs_encoding(comm, len))
-		audit_encode_value(commname, comm, len);
+	if (audit_value_needs_encoding(comm, len)) {
+		if (2*len + 1 > size)
+			strcpy(commname, "\"?\"");
+		else
+			audit_encode_value(commname, comm, len);
+	} else if (len + 3 > size)
+		strcpy(commname, "\"?\"");
 	else
 		snprintf(commname, size, "\"%s\"", comm);
 
