@@ -124,7 +124,7 @@ int audit_request_status(int fd)
 	int rc = audit_send(fd, AUDIT_GET, NULL, 0);
 	if (rc < 0) 
 		audit_msg(audit_priority(errno),
-			"Error sending status request (%s)", strerror(-rc));
+			"Error sending status request (%m)");
 	return rc;
 }
 
@@ -225,8 +225,8 @@ static int load_libaudit_config(const char *path)
 	rc = open(path, O_NOFOLLOW|O_RDONLY|O_CLOEXEC);
 	if (rc < 0) {
 		if (errno != ENOENT) {
-			audit_msg(LOG_ERR, "Error opening %s (%s)",
-				path, strerror(errno));
+			audit_msg(LOG_ERR, "Error opening %s (%m)",
+				path);
 			return 1;
 		}
 		audit_msg(LOG_WARNING,
@@ -240,8 +240,8 @@ static int load_libaudit_config(const char *path)
 	 */
 	audit_msg(LOG_DEBUG, "Config file %s opened for parsing", path);
 	if (fstat(fd, &st) < 0) {
-		audit_msg(LOG_ERR, "Error fstat'ing %s (%s)",
-			path, strerror(errno));
+		audit_msg(LOG_ERR, "Error fstat'ing %s (%m)",
+			path);
 		close(fd);
 		return 1;
 	}
@@ -362,7 +362,7 @@ int audit_set_enabled(int fd, uint32_t enabled)
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending enable request (%s)", strerror(-rc));
+			"Error sending enable request (%m)");
 	return rc;
 }
 
@@ -435,8 +435,7 @@ int audit_set_failure(int fd, uint32_t failure)
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending failure mode request (%s)",
-			strerror(-rc));
+			"Error sending failure mode request (%m)");
 	return rc;
 }
 
@@ -456,8 +455,7 @@ int audit_set_pid(int fd, uint32_t pid, rep_wait_t wmode)
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0) {
 		audit_msg(audit_priority(errno),
-			"Error setting audit daemon pid (%s)",
-			strerror(-rc));
+			"Error setting audit daemon pid (%m)");
 		return rc;
 	}
 	if (wmode == WAIT_NO)
@@ -489,8 +487,7 @@ int audit_set_rate_limit(int fd, uint32_t limit)
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending rate limit request (%s)",
-			strerror(-rc));
+			"Error sending rate limit request (%m)");
 	return rc;
 }
 
@@ -505,8 +502,7 @@ int audit_set_backlog_limit(int fd, uint32_t limit)
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending backlog limit request (%s)",
-			strerror(-rc));
+			"Error sending backlog limit request (%m)");
 	return rc;
 }
 
@@ -523,8 +519,7 @@ int audit_set_backlog_wait_time(int fd, uint32_t bwt)
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending backlog limit request (%s)",
-			strerror(-rc));
+			"Error sending backlog limit request (%m)");
 #endif
 	return rc;
 }
@@ -544,8 +539,7 @@ int audit_reset_lost(int fd)
 	rc = __audit_send(fd, AUDIT_SET, &s, sizeof(s), &seq);
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending lost reset request (%s)",
-			strerror(-rc));
+			"Error sending lost reset request (%m)");
 	return rc;
 }
 
@@ -563,8 +557,7 @@ int audit_reset_backlog_wait_time_actual(int fd)
 	rc = __audit_send(fd, AUDIT_SET, &s, sizeof(s), &seq);
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending backlog wait time actual reset request (%s)",
-			strerror(-rc));
+			"Error sending backlog wait time actual reset request (%m)");
 #endif
 	return rc;
 }
@@ -584,8 +577,7 @@ int audit_set_feature(int fd, unsigned feature, unsigned value, unsigned lock)
 	rc = audit_send(fd, AUDIT_SET_FEATURE, &f, sizeof(f));
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error setting feature (%s)",
-			strerror(-rc));
+			"Error setting feature (%m)");
 	return rc;
 #else
 	errno = EINVAL;
@@ -690,8 +682,7 @@ int audit_request_rules_list_data(int fd)
 	int rc = audit_send(fd, AUDIT_LIST_RULES, NULL, 0);
 	if (rc < 0 && rc != -EINVAL)
 		audit_msg(audit_priority(errno),
-			"Error sending rule list data request (%s)",
-			strerror(-rc));
+			"Error sending rule list data request (%m)");
 	return rc;
 }
 
@@ -700,8 +691,7 @@ int audit_request_signal_info(int fd)
 	int rc = audit_send(fd, AUDIT_SIGNAL_INFO, NULL, 0);
 	if (rc < 0)
 		audit_msg(LOG_WARNING,
-			"Error sending signal_info request (%s)",
-			strerror(-rc));
+			"Error sending signal_info request (%m)");
 	return rc;
 }
 
@@ -840,11 +830,14 @@ int audit_add_rule_data(int fd, struct audit_rule_data *rule,
 	rule->action = action;
 	rc = audit_send(fd, AUDIT_ADD_RULE, rule,
 			sizeof(struct audit_rule_data) + rule->buflen);
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending add rule data request (%s)",
-				errno == EEXIST ?
-				"Rule exists" : strerror(-rc));
+	if (rc < 0) {
+		if (errno == EEXIST)
+			audit_msg(audit_priority(errno),
+			"Error sending add rule data request (Rule exists)");
+		else
+			audit_msg(audit_priority(errno),
+			"Error sending add rule data request (%m)");
+	}
 	return rc;
 }
 
@@ -863,8 +856,7 @@ int audit_delete_rule_data(int fd, struct audit_rule_data *rule,
 			"Error sending delete rule request (No rule matches)");
 		else
 			audit_msg(audit_priority(errno),
-				"Error sending delete rule data request (%s)",
-				strerror(-rc));
+				"Error sending delete rule data request (%m)");
 	}
 	return rc;
 }
@@ -877,8 +869,7 @@ int audit_trim_subtrees(int fd)
 	int rc = audit_send(fd, AUDIT_TRIM, NULL, 0);
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending trim subtrees command (%s)",
-			strerror(-rc));
+			"Error sending trim subtrees command (%m)");
 	return rc;
 }
 
@@ -909,8 +900,7 @@ int audit_make_equivalent(int fd, const char *mount_point,
 	rc = audit_send(fd, AUDIT_MAKE_EQUIV, cmd, sizeof(*cmd) + len1 + len2);
 	if (rc < 0)
 		audit_msg(audit_priority(errno),
-			"Error sending make_equivalent command (%s)",
-			strerror(-rc));
+			"Error sending make_equivalent command (%m)");
 	free(cmd);
 	return rc;
 }
