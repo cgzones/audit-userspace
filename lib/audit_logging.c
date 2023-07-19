@@ -151,10 +151,11 @@ char *audit_encode_nv_string(const char *name, const char *value,
 static char *_get_exename(char *exename, int size)
 {
 	int res;
-	char tmp[PATH_MAX+1];
+	char tmp[PATH_MAX];
 
 	/* get the name of the current executable */
-	if ((res = readlink("/proc/self/exe", tmp, PATH_MAX)) == -1) {
+	res = readlink("/proc/self/exe", tmp, PATH_MAX);
+	if (res == -1 || res >= PATH_MAX) {
 		strcpy(exename, "\"?\"");
 		audit_msg(LOG_ERR, "get_exename: cannot determine executable");
 	} else {
