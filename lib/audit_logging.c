@@ -318,7 +318,7 @@ int audit_log_user_message(int audit_fd, int type, const char *message,
 	if (hostname == NULL && tty)
 		hostname = _get_hostname(tty);
 
-	snprintf(buf, sizeof(buf),
+	ret = snprintf(buf, sizeof(buf),
 		"%s exe=%s hostname=%s addr=%s terminal=%s res=%s",
 		message, exename,
 		hostname ? hostname : "?",
@@ -326,6 +326,10 @@ int audit_log_user_message(int audit_fd, int type, const char *message,
 		tty ? tty : "?",
 		success
 		);
+	if (ret < 0 || (size_t)ret >= sizeof(buf)) {
+		audit_msg(LOG_ERR, "failed to format audit message (%d)", ret);
+		return 0;
+	}
 
 	errno = 0;
 	ret = audit_send_user_message( audit_fd, type, HIDE_IT, buf );
@@ -398,7 +402,7 @@ int audit_log_user_comm_message(int audit_fd, int type, const char *message,
 	if (hostname == NULL && tty)
 		hostname = _get_hostname(tty);
 
-	snprintf(buf, sizeof(buf),
+	ret = snprintf(buf, sizeof(buf),
 		"%s comm=%s exe=%s hostname=%s addr=%s terminal=%s res=%s",
 		message, commname, exename,
 		hostname ? hostname : "?",
@@ -406,6 +410,10 @@ int audit_log_user_comm_message(int audit_fd, int type, const char *message,
 		tty ? tty : "?",
 		success
 		);
+	if (ret < 0 || (size_t)ret >= sizeof(buf)) {
+		audit_msg(LOG_ERR, "failed to format audit message (%d)", ret);
+		return 0;
+	}
 
 	errno = 0;
 	ret = audit_send_user_message( audit_fd, type, HIDE_IT, buf );
@@ -498,7 +506,7 @@ int audit_log_acct_message(int audit_fd, int type, const char *pgname,
 			encoded = 1;
 		}
 
-		snprintf(buf, sizeof(buf),
+		ret = snprintf(buf, sizeof(buf),
 			encoded ? "op=%s acct=%s exe=%s hostname=%s addr=%s terminal=%s res=%s"
 			        : "op=%s acct=\"%s\" exe=%s hostname=%s addr=%s terminal=%s res=%s",
 			op, user, exename,
@@ -507,8 +515,8 @@ int audit_log_acct_message(int audit_fd, int type, const char *pgname,
 			tty ? tty : "?",
 			success
 			);
-	} else
-		snprintf(buf, sizeof(buf),
+	} else {
+		ret = snprintf(buf, sizeof(buf),
 		"op=%s id=%u exe=%s hostname=%s addr=%s terminal=%s res=%s",
 			op, id, exename,
 			host ? host : "?",
@@ -516,6 +524,11 @@ int audit_log_acct_message(int audit_fd, int type, const char *pgname,
 			tty ? tty : "?",
 			success
 			);
+	}
+	if (ret < 0 || (size_t)ret >= sizeof(buf)) {
+		audit_msg(LOG_ERR, "failed to format audit message (%d)", ret);
+		return 0;
+	}
 
 	errno = 0;
 	ret = audit_send_user_message(audit_fd, type, REAL_ERR, buf);
@@ -569,13 +582,17 @@ int audit_log_user_avc_message(int audit_fd, int type, const char *message,
 	else if (*tty == 0)
 		tty = NULL;
 
-	snprintf(buf, sizeof(buf),
+	retval = snprintf(buf, sizeof(buf),
 	    "%s exe=%s sauid=%d hostname=%s addr=%s terminal=%s",
 		message, exename, auid,
 		hostname ? hostname : "?",
 		addrbuf,
 		tty ? tty : "?"
 		);
+	if (retval < 0 || (size_t)retval >= sizeof(buf)) {
+		audit_msg(LOG_ERR, "failed to format audit message (%d)", retval);
+		return 0;
+	}
 
 	errno = 0;
 	retval = audit_send_user_message( audit_fd, type, REAL_ERR, buf );
@@ -671,7 +688,7 @@ int audit_log_semanage_message(int audit_fd, int type, const char *pgname,
 			encoded = 1;
 		}
 
-		snprintf(buf, sizeof(buf),
+		ret = snprintf(buf, sizeof(buf),
 			encoded ?  "op=%s acct=%s old-seuser=%s old-role=%s old-range=%s new-seuser=%s new-role=%s new-range=%s exe=%s hostname=%s addr=%s terminal=%s res=%s"
 			        : "op=%s acct=\"%s\" old-seuser=%s old-role=%s old-range=%s new-seuser=%s new-role=%s new-range=%s exe=%s hostname=%s addr=%s terminal=%s res=%s",
 			op, user,
@@ -687,8 +704,8 @@ int audit_log_semanage_message(int audit_fd, int type, const char *pgname,
 			tty && strlen(tty) ? tty : "?",
 			success
 			);
-	} else
-		snprintf(buf, sizeof(buf),
+	} else {
+		ret = snprintf(buf, sizeof(buf),
 		"op=%s id=%u old-seuser=%s old-role=%s old-range=%s new-seuser=%s new-role=%s new-range=%s exe=%s hostname=%s addr=%s terminal=%s res=%s",
 			op, id,
 			old_seuser && strlen(old_seuser) ? old_seuser : "?",
@@ -703,6 +720,11 @@ int audit_log_semanage_message(int audit_fd, int type, const char *pgname,
 			tty && strlen(tty) ? tty : "?",
 			success
 			);
+	}
+	if (ret < 0 || (size_t)ret >= sizeof(buf)) {
+		audit_msg(LOG_ERR, "failed to format audit message (%d)", ret);
+		return 0;
+	}
 
 	errno = 0;
 	ret = audit_send_user_message(audit_fd, type, REAL_ERR, buf);
@@ -806,11 +828,15 @@ int audit_log_user_command(int audit_fd, int type, const char *command,
 	strcpy(p, "exe=%s terminal=%s res=%s");
 
 	// now use the format string to make the event
-	snprintf(buf, sizeof(buf), format,
+	ret = snprintf(buf, sizeof(buf), format,
 			cwdname, commname, exename,
 			tty ? tty : "?",
 			success
 		);
+	if (ret < 0 || (size_t)ret >= sizeof(buf)) {
+		audit_msg(LOG_ERR, "failed to format audit message (%d)", ret);
+		return 0;
+	}
 
 	errno = 0;
 	ret = audit_send_user_message( audit_fd, type, HIDE_IT, buf );
