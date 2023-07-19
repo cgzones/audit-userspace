@@ -705,12 +705,13 @@ int audit_request_signal_info(int fd)
 	return rc;
 }
 
-char *audit_format_signal_info(char *buf, int len, const char *op,
+int audit_format_signal_info(char *buf, size_t len, const char *op,
 			       const struct audit_reply *rep, const char *res)
 {
 	struct stat sb;
 	char path[32], ses[16];
 	ssize_t rlen;
+	int rc;
 	snprintf(path, sizeof(path), "/proc/%u", rep->signal_info->pid);
 	int fd = open(path, O_RDONLY|O_DIRECTORY|O_CLOEXEC);
 	if (fd >= 0) {
@@ -735,15 +736,15 @@ char *audit_format_signal_info(char *buf, int len, const char *op,
 			ses[rlen] = 0;
 	}
 	if (rep->len == 24)
-		snprintf(buf, len, "op=%s auid=%u uid=%u ses=%s pid=%d res=%s",
+		rc = snprintf(buf, len, "op=%s auid=%u uid=%u ses=%s pid=%d res=%s",
 			op, rep->signal_info->uid, sb.st_uid, ses,
 			rep->signal_info->pid, res);
 	else
-		snprintf(buf, len, "op=%s auid=%u uid=%u ses=%s pid=%d subj=%s res=%s",
+		rc = snprintf(buf, len, "op=%s auid=%u uid=%u ses=%s pid=%d subj=%s res=%s",
 			op,rep->signal_info->uid, sb.st_uid, ses,
 			rep->signal_info->pid,
 			rep->signal_info->ctx, res);
-	return buf;
+	return rc;
 }
 
 int audit_update_watch_perms(struct audit_rule_data *rule, int perms)

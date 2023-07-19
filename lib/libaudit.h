@@ -206,7 +206,7 @@ int  audit_setloginuid(uid_t uid) __wur;
 uint32_t audit_get_session(void);
 int  audit_detect_machine(void);
 int audit_determine_machine(const char *arch);
-char *audit_format_signal_info(char *buf, int len, const char *op,
+int audit_format_signal_info(char *buf, size_t len, const char *op,
 			const struct audit_reply *rep, const char *res)
 			__attr_access ((__write_only__, 1, 2));
 
