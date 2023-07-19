@@ -244,11 +244,14 @@ static void *flush_thread_main(void *arg)
  * changes from non incremental to incremental or vice versa. */
 static void init_flush_thread(void)
 {
+	int ret;
+
 	pthread_mutex_init(&flush_lock, NULL);
 	pthread_cond_init(&do_flush, NULL);
 	flush = 0;
-	pthread_create(&flush_thread, NULL, flush_thread_main, NULL);
-	pthread_detach(flush_thread);
+	ret = pthread_create(&flush_thread, NULL, flush_thread_main, NULL);
+	if (ret == 0)
+		pthread_detach(flush_thread);
 }
 
 static void replace_event_msg(struct auditd_event *e, const char *buf)

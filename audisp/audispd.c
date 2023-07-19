@@ -331,7 +331,7 @@ static int reconfigure(void)
  * */
 int libdisp_init(const struct daemon_conf *c)
 {
-	int i;
+	int i, rc;
 
 	/* Init the dispatcher's config */
 	copy_config(c);
@@ -358,7 +358,9 @@ int libdisp_init(const struct daemon_conf *c)
 		daemon_config.q_depth, i);
 
 	/* Create outbound thread */
-	pthread_create(&outbound_thread, NULL, outbound_thread_main, NULL);
+	rc = pthread_create(&outbound_thread, NULL, outbound_thread_main, NULL);
+        if (rc > 0)
+                return -1;
 	pthread_detach(outbound_thread);
 	return 0;
 }
@@ -628,7 +630,7 @@ void libdisp_reconfigure(const struct daemon_conf *c)
 {
 	// If the dispatcher thread is dead, start a new one
 	if (plist_count(&plugin_conf) == 0)
-		libdisp_init(c);
+		libdisp_init(c); //TODO
 	else { // Otherwise we do a reconfigure
 			copy_config(c);
 			disp_hup = 1;

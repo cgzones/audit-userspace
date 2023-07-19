@@ -511,8 +511,12 @@ int main(int argc, char *argv[])
                  */
                 sigfillset(&ss);
                 pthread_sigmask(SIG_BLOCK, &ss, NULL);
-                pthread_create(&submission_thread, NULL,
-                               submission_thread_main, NULL);
+                rc = pthread_create(&submission_thread, NULL,
+                                    submission_thread_main, NULL);
+                if (rc > 0) {
+                        log_err("Error - Can't spawn thread: %s", strerror(rc));
+                        return -1;
+                }
                 pthread_sigmask(SIG_UNBLOCK, &ss, NULL);           /* 3 */
 
                 /* add our event consumer callback */
