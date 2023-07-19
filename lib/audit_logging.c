@@ -47,7 +47,7 @@
  * resolve's the hostname - caller must pass a INET6_ADDRSTRLEN byte buffer
  * Returns string w/ numerical address, or "?" on failure
  */
-static void _resolve_addr(char buf[], const char *host)
+static void _resolve_addr(char buf[INET6_ADDRSTRLEN], const char *host)
 {
 	struct addrinfo *ai;
 	struct addrinfo hints;
