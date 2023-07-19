@@ -269,8 +269,7 @@ static int load_libaudit_config(const char *path)
 	/* it's ok, read line by line */
 	f = fdopen(fd, "rme");
 	if (f == NULL) {
-		audit_msg(LOG_ERR, "Error - fdopen failed (%s)",
-			strerror(errno));
+		audit_msg(LOG_ERR, "Error - fdopen failed (%m)");
 		close(fd);
 		return 1;
 	}
@@ -602,10 +601,11 @@ int audit_request_features(int fd)
 
 	memset(&f, 0, sizeof(f));
 	rc = audit_send(fd, AUDIT_GET_FEATURE, &f, sizeof(f));
-	if (rc < 0)
+	if (rc < 0) {
+		errno = -rc;
 		audit_msg(audit_priority(errno),
-			"Error getting feature (%s)",
-			strerror(-rc));
+			"Error getting feature (%m)");
+	}
 	return rc;
 #else
 	errno = EINVAL;
