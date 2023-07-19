@@ -1618,15 +1618,15 @@ static int audit_add_perm_syscalls(int perm, struct audit_rule_data *rule)
 int audit_rule_fieldpair_data(struct audit_rule_data **rulep, const char *pair,
                               int flags)
 {
-	const char *f = pair;
-	char       *v;
+	char       *f;
+	const char *v;
 	int        op;
 	int        field;
-	int        vlen;
+	size_t     vlen;
 	int        offset;
 	struct audit_rule_data *rule = *rulep;
 
-	if (f == NULL)
+	if (pair == NULL)
 		return -EAU_FILTERMISSING;
 
 	if (rule->field_count >= (AUDIT_MAX_FIELDS - 1))
@@ -1638,45 +1638,57 @@ int audit_rule_fieldpair_data(struct audit_rule_data **rulep, const char *pair,
 	   and set value pointer just past operator bytes
 	*/
 	if ( (v = strstr(pair, "!=")) ) {
-		*v++ = '\0';
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 2;
 		op = AUDIT_NOT_EQUAL;
 	} else if ( (v = strstr(pair, ">=")) ) {
-		*v++ = '\0';
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 2;
 		op = AUDIT_GREATER_THAN_OR_EQUAL;
 	} else if ( (v = strstr(pair, "<=")) ) {
-		*v++ = '\0';
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 2;
 		op = AUDIT_LESS_THAN_OR_EQUAL;
 	} else if ( (v = strstr(pair, "&=")) ) {
-		*v++ = '\0';
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 2;
 		op = AUDIT_BIT_TEST;
 	} else if ( (v = strstr(pair, "=")) ) {
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 1;
 		op = AUDIT_EQUAL;
 	} else if ( (v = strstr(pair, ">")) ) {
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 1;
 		op = AUDIT_GREATER_THAN;
 	} else if ( (v = strstr(pair, "<")) ) {
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 1;
 		op = AUDIT_LESS_THAN;
 	} else if ( (v = strstr(pair, "&")) ) {
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 1;
 		op = AUDIT_BIT_MASK;
+	} else {
+		return -EAU_OPMISSING;
 	}
 
-	if (v == NULL)
-		return -EAU_OPMISSING;
+	if (!f)
+		return -EAU_STRTOOLONG;
 
-	if (*f == 0)
+	if (*f == 0) {
+		free(f);
 		return -EAU_FIELDNAME;
+	}
 
-	if (*v == 0)
+	if (*v == 0) {
+		free(f);
 		return -EAU_FIELDVALMISSING;
+	}
 
-	if ((field = audit_name_to_field(f)) < 0)
+	field = audit_name_to_field(f);
+	free(f);
+	if (field < 0)
 		return -EAU_FIELDUNKNOWN;
 
 	/* Exclude filter can be used only with MSGTYPE, cred, and EXE fields
@@ -1867,9 +1879,9 @@ int audit_rule_fieldpair_data(struct audit_rule_data **rulep, const char *pair,
 					return -EAU_ELFUNKNOWN;
 			}
 			else {
-				const char *arch=v;
-				unsigned int machine, elf;
-				machine = audit_determine_machine(arch);
+				unsigned int elf;
+				int machine;
+				machine = audit_determine_machine(v);
 				/* OK, we have the machine type, now convert
 				   to elf. */
 				elf = audit_machine_to_elf(machine);
