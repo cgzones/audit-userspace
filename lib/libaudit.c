@@ -1069,13 +1069,13 @@ int audit_rule_interfield_comp_data(struct audit_rule_data **rulep,
 					 const char *pair,
 					 int flags)
 {
-	const char *f = pair;
-	char       *v;
+	char       *f;
+	const char *v;
 	int        op;
 	int        field1, field2;
 	struct audit_rule_data *rule = *rulep;
 
-	if (f == NULL)
+	if (pair == NULL)
 		return -EAU_FILTERMISSING;
 
 	if (rule->field_count >= (AUDIT_MAX_FIELDS - 1))
@@ -1087,23 +1087,33 @@ int audit_rule_interfield_comp_data(struct audit_rule_data **rulep,
 	   and set value pointer just past operator bytes
 	*/
 	if ( (v = strstr(pair, "!=")) ) {
-		*v++ = '\0';
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 2;
 		op = AUDIT_NOT_EQUAL;
 	} else if ( (v = strstr(pair, "=")) ) {
-		*v++ = '\0';
+		f = strndup(pair, v - pair);
+		v += 1;
 		op = AUDIT_EQUAL;
 	} else {
 		return -EAU_OPEQNOTEQ;
 	}
 
-	if (*f == 0)
+	if (!f)
+		return EAU_STRTOOLONG;
+
+	if (*f == 0) {
+		free(f);
 		return -EAU_COMPFIELDNAME;
+	}
 
-	if (*v == 0)
+	if (*v == 0) {
+		free(f);
 		return -EAU_COMPVAL;
+	}
 
-	if ((field1 = audit_name_to_field(f)) < 0)
+	field1 = audit_name_to_field(f);
+	free(f);
+	if (field1 < 0)		
 		return -EAU_COMPFIELDUNKNOWN;
 
 	if ((field2 = audit_name_to_field(v)) < 0)
