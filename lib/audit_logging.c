@@ -243,10 +243,11 @@ static const char *_get_tty(char *tname, int size)
 	return tname;
 }
 
-#define HOSTLEN 64
-static char _host[HOSTLEN] = "";
 static const char *_get_hostname(const char *ttyn)
 {
+	#define HOSTLEN 64
+	static char _host[HOSTLEN] = "";
+
 	if (ttyn && ((strncmp(ttyn, "pts", 3) == 0) ||
 		(strncmp(ttyn, "tty", 3) == 0) ||
 		(strncmp(ttyn, "/dev/tty", 8) == 0) )) {
